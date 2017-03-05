@@ -4,6 +4,7 @@ data Type = Nat | Prod Type Type | Arr Type Type
   deriving (Show)
 
 data Program = Var String
+             | Zero | Suc Program
              | Pair Program Program | Fst Type Program | Snd Type Program
              | Lam String Program | App Type Program Program
   deriving (Show)
@@ -22,6 +23,8 @@ decomposeHasType g (Var x) a =
   case lookup x g of
     Nothing -> Nothing
     Just a2 -> Just [Equal a a2]
+decomposeHasType g Zero Nat = Just []
+decomposeHasType g (Suc m) Nat = Just [HasType g m Nat]
 decomposeHasType g (Pair m n) (Prod a b) = Just [HasType g m a, HasType g n b]
 decomposeHasType g (Fst b p) a = Just [HasType g p (Prod a b)]
 decomposeHasType g (Snd a p) b = Just [HasType g p (Prod a b)]
