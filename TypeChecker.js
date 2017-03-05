@@ -18,6 +18,28 @@ function sequence(mxs) {
     return Just(xs);
 }
 
+function eq(x,y) {
+  if (x instanceof Array && y instanceof Array) {
+    if (x.length != y.length) { return false; }
+    
+    for (var i = 0; i < x.length; i++) {
+      if (!eq(x[i], y[i])) { return false; }
+    }
+    
+    return true;
+  } else if (x.tag === y.tag) {
+    if (x.args && y.args) {
+      return eq(x.args,y.args);
+    } else if (x.arg && y.arg) {
+      return eq(x.arg,y.arg);
+    } else if (!x.arg && !y.arg) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
 
 function ProofTree(c,ps) {
     return { tag: "ProofTree", args: [c,ps] };
@@ -96,29 +118,11 @@ function App(a,m,n) {
 // Judgments
 //
 
-function Equal(a,b) {
-    return { tag: "Equal", args: [a,b] };
-}
-
 function HasType(g,m,a) {
     return { tag: "HasType", args: [g,m,a] };
 }
 
 
-
-function decomposeEqual(t1,t2) {
-    if (t1.tag === "Nat" && t2.tag === "Nat") {
-        return Just([]);
-    } else if (t1.tag === "Prod" && t2.tag === "Prod") {
-        return Just([Equal(t1.args[0], t2.args[0]),
-                     Equal(t1.args[1], t2.args[1])]);
-    } else if (t1.tag === "Arr" && t2.tag === "Arr") {
-        return Just([Equal(t1.args[0], t2.args[0]),
-                     Equal(t1.args[1], t2.args[1])]);
-    } else {
-        return Nothing;
-    }
-}
 
 function lookup(x,xys) {
     for (var i = 0; i < xys.length; i++) {
@@ -137,7 +141,7 @@ function decomposeHasType(g,m,a) {
         if (ma2.tag === "Nothing") {
             return Nothing;
         } else if (ma2.tag === "Just") {
-            return Just([Equal(a, ma2.arg)]);
+            return eq(a,ma2.arg) ? Just([]) : Nothing;
         }
     } else if (m.tag === "Zero" && a.tag === "Nat") {
       return Just([]);
@@ -163,9 +167,7 @@ function decomposeHasType(g,m,a) {
 }
 
 function decompose(j) {
-    if (j.tag === "Equal") {
-        return decomposeEqual(j.args[0], j.args[1]);
-    } else if (j.tag === "HasType") {
+    if (j.tag === "HasType") {
         return decomposeHasType(j.args[0], j.args[1], j.args[2]);
     }
 }
