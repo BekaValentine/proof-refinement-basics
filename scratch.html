@@ -1,0 +1,28 @@
+<html>
+  <body>
+    <script>
+
+function show(x) {
+    if (x) {
+        if (x.arg) {
+            return x.tag + "(" + show(x.arg) + ")";
+        } else if (x.args) {
+            return x.tag + "(" + x.args.map(x2 => show(x2)).join(",") + ")";
+        } else if (x instanceof Array) {
+            return "[" + x.map(x2 => show(x2)).join(",") + "]";
+        } else if (x instanceof String || typeof x == "string") {
+            return x;
+        } else if (x instanceof Function || typeof x == "function") {
+            return x.toString();
+        } else {
+            return x.tag;
+        }
+    } else {
+        return "<unknown>"
+    }
+}
+
+    </script>
+    <script src="TypeChecker.js"></script>
+  <body>
+</html>
