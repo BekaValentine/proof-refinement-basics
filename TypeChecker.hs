@@ -1,7 +1,7 @@
 module TypeChecker where
 
 data Type = Nat | Prod Type Type | Arr Type Type
-  deriving (Show)
+  deriving (Show,Eq)
 
 data Program = Var String
              | Zero | Suc Program
@@ -9,20 +9,16 @@ data Program = Var String
              | Lam String Program | App Type Program Program
   deriving (Show)
 
-data Judgment = Equal Type Type | HasType [(String,Type)] Program Type
+data Judgment = HasType [(String,Type)] Program Type
   deriving (Show)
-
-decomposeEqual :: Type -> Type -> Maybe [Judgment]
-decomposeEqual Nat Nat = Just []
-decomposeEqual (Prod a1 b1) (Prod a2 b2) = Just [Equal a1 a2, Equal b1 b2]
-decomposeEqual (Arr a1 b1) (Arr a2 b2) = Just [Equal a1 a2, Equal b1 b2]
-decomposeEqual _ _ = Nothing
 
 decomposeHasType :: [(String,Type)] -> Program -> Type -> Maybe [Judgment]
 decomposeHasType g (Var x) a =
   case lookup x g of
     Nothing -> Nothing
-    Just a2 -> Just [Equal a a2]
+    Just a2 -> if a == a2
+               then Just []
+               else Nothing
 decomposeHasType g Zero Nat = Just []
 decomposeHasType g (Suc m) Nat = Just [HasType g m Nat]
 decomposeHasType g (Pair m n) (Prod a b) = Just [HasType g m a, HasType g n b]
@@ -33,7 +29,6 @@ decomposeHasType g (App a m n) b = Just [HasType g m (Arr a b), HasType g n a]
 decomposeHasType _ _ _ = Nothing
 
 decompose :: Judgment -> Maybe [Judgment]
-decompose (Equal a b) = decomposeEqual a b
 decompose (HasType g m a) = decomposeHasType g m a
 
 data ProofTree = ProofTree Judgment [ProofTree]
