@@ -39,6 +39,11 @@ function findProof(j) {
 }
 
 
+
+//
+// Types
+//
+
 var Nat = { tag: "Nat" };
 
 function Prod(a,b) {
@@ -48,6 +53,12 @@ function Prod(a,b) {
 function Arr(a,b) {
     return { tag: "Arr", args: [a,b] };
 }
+
+
+
+//
+// Programs
+//
 
 function Var(x) {
     return { tag: "Var", arg: x };
@@ -79,6 +90,12 @@ function App(a,m,n) {
     return { tag: "App", args: [a,m,n] };
 }
 
+
+
+//
+// Judgments
+//
+
 function Equal(a,b) {
     return { tag: "Equal", args: [a,b] };
 }
@@ -86,6 +103,8 @@ function Equal(a,b) {
 function HasType(g,m,a) {
     return { tag: "HasType", args: [g,m,a] };
 }
+
+
 
 function decomposeEqual(t1,t2) {
     if (t1.tag === "Nat" && t2.tag === "Nat") {
