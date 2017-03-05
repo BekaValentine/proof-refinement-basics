@@ -53,6 +53,12 @@ function Var(x) {
     return { tag: "Var", arg: x };
 }
 
+var Zero = { tag: "Zero" };
+
+function Suc(m) {
+    return { tag: "Suc", arg: m };
+}
+
 function Pair(m,n) {
     return { tag: "Pair", args: [m,n] };
 }
@@ -114,6 +120,10 @@ function decomposeHasType(g,m,a) {
         } else if (ma2.tag === "Just") {
             return Just([Equal(a, ma2.arg)]);
         }
+    } else if (m.tag === "Zero" && a.tag === "Nat") {
+      return Just([]);
+    } else if (m.tag === "Suc" && a.tag === "Nat") {
+      return Just([HasType(g, m.arg, Nat)]);
     } else if (m.tag === "Pair" && a.tag === "Prod") {
         return Just([HasType(g, m.args[0], a.args[0]),
                      HasType(g, m.args[1], a.args[1])])
